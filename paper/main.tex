@@ -111,6 +111,19 @@ The physical consequence of this systematic positive bias is the dynamic reclass
 
 Figure \ref{fig:boundary} isolates the SM-relevant region. Exactly 110 grid points along the boundary strip are rescued into metastability by the $\phi^6$ correction. This strip has a characteristic width of $\sim 0.3-0.5$ GeV in the $M_t-M_h$ plane, effectively thickening the metastable region and shifting the theoretical boundary inward.
 
+\subsection{Dependence on the Planck-Scale Coefficient $c_6$}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/c6_sweep_plot.png}
+    \caption{Dependence of the metastability boundary on the dimension-6 operator coefficient $c_6$. Modifying $c_6$ across two orders of magnitude ($c_6=0.1$ to $c_6=10.0$) shifts the absolute position of the boundary, but the structural breakdown of the conformal approximation ($c_6=0$) remains a universal feature.}
+    \label{fig:c6sweep}
+\end{figure}
+
+To demonstrate that our conclusions are robust against unknown quantum gravity effects, we vary the coefficient of the Planck-scale operator, $c_6$. While we adopt $c_6=1.0$ as a natural $O(1)$ benchmark, the exact value is a free parameter of the UV completion. 
+
+Figure \ref{fig:c6sweep} illustrates the shift in the phase boundary for $c_6 \in \{0.1, 1.0, 10.0\}$. As expected, a larger $c_6$ provides a stronger stabilizing effect, pushing the boundary further into the classically unstable regime. Crucially, however, the phenomenon is universal: for any $c_6 > 0$, the $\phi^6$ operator rigorously inflates the tunneling barrier near the metastability threshold, invalidating the analytical conformal approximation. Thus, while the exact location of the boundary depends on UV physics, the qualitative breakdown of the conformal approximation does not.
+
 \section{Conclusion}
 
 We have demonstrated that while the conformal approximation is a robust global estimator for electroweak vacuum decay, it systematically fails to capture the tunneling dynamics near the metastability threshold. Exact numerical integration, incorporating Planck-scale dimension-6 corrections, proves that high-energy operators intrinsically raise the tunneling barrier, extending the metastable region of the SM phase diagram by up to $0.5$ GeV. These numerical findings underscore the necessity of exact bounce solvers when evaluating absolute stability bounds in particle physics.
