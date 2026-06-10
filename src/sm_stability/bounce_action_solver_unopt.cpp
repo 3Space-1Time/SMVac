@@ -24,10 +24,11 @@ const double Mtau = 1.777;
 const double Mb = 4.0;
 const double alpha3_at_Mz = 0.1184; 
 const double pi = M_PI;
-const double pi2 = pow(4*pi, 2);
-const double pi4 = pi2*pi2;
-const double pi6 = pi2*pi2*pi2;
-const double pi8 = pi4*pi4;
+const double PI2 = pi * pi;
+const double LOOP1 = 16.0 * PI2;
+const double LOOP2 = LOOP1 * LOOP1;
+const double LOOP3 = LOOP2 * LOOP1;
+const double LOOP4 = LOOP2 * LOOP2;
 
 // SM Initial Couplings
 const double g1init = 0.46;
@@ -63,20 +64,7 @@ public:
         return result;
     }
 };
-        auto it = upper_bound(table.begin(), table.end(), t, 
-            [](double val, const pair<double, Params>& elem){ return val < elem.first; });
-        
-        if (it == table.begin()) return table.front().second;
-        if (it == table.end()) return table.back().second;
-        
-        const auto& p1 = *(it - 1);
-        const auto& p2 = *it;
-        double factor = (t - p1.first) / (p2.first - p1.first);
-        
-        Params result = p1.second;
-        result.lambda = p1.second.lambda + factor * (p2.second.lambda - p1.second.lambda);
-        return result;
-    }
+
 
     double get_lambda_fast(double t) const {
         if (lambda_fast.empty()) return 0;
@@ -100,9 +88,9 @@ double betaG1sq(const Params& p) {
     double g1_4 = g1_2*g1_2, g2_4 = g2_2*g2_2, g3_4 = g3_2*g3_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     
-    double term1 = g1_4/pi2 * (41.0/10);
-    double term2 = g1_4/pi4 * (44*g3_2/5 + 27*g2_2/10 + 199*g1_2/50 - 17*yt2/10 - yb2/2 - 3*ytau2/2);
-    double term3 = g1_4/pi6 * (
+    double term1 = g1_4/LOOP1 * (41.0/10);
+    double term2 = g1_4/LOOP2 * (44*g3_2/5 + 27*g2_2/10 + 199*g1_2/50 - 17*yt2/10 - yb2/2 - 3*ytau2/2);
+    double term3 = g1_4/LOOP3 * (
         yt2*(189*yt2/16 - 29*g3_2/5 - 471*g2_2/32 - 2827*g1_2/800) +
         p.lambda*(-9*p.lambda/5 + 9*g2_2/10 + 27*g1_2/50) +
         297*g3_4/5 + 789*g2_4/64 - 388613*g1_4/24000 -
@@ -116,11 +104,11 @@ double betaG2sq(const Params& p) {
     double g2_4 = g2_2*g2_2, g3_4 = g3_2*g3_2, g1_4 = g1_2*g1_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     
-    double term1 = g2_4/pi2 * (-19.0/6);
-    double term2 = g2_4/pi4 * (
+    double term1 = g2_4/LOOP1 * (-19.0/6);
+    double term2 = g2_4/LOOP2 * (
         12*g3_2 + 35*g2_2/6 + 9*g1_2/10 - 3*yt2/2 - 3*yb2/2 - ytau2/2
     );
-    double term3 = g2_4/pi6 * (
+    double term3 = g2_4/LOOP3 * (
         yt2*(147*yt2/16 - 7*g3_2 - 729*g2_2/32 - 593*g1_2/160) +
         p.lambda*(-3*p.lambda + 3*g2_2/2 + 3*g1_2/10) +
         81*g3_4 + 324953*g2_4/1728 - 5597*g1_4/1600 +
@@ -135,16 +123,16 @@ double betaG3sq(const Params& p) {
     double g3_8 = g3_4*g3_4, g3_10 = g3_8*g3_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb;
     
-    double term1 = -g3_4/pi2 * 7;
-    double term2 = g3_4/pi4 * (
+    double term1 = -g3_4/LOOP1 * 7;
+    double term2 = g3_4/LOOP2 * (
         -26*g3_2 + 9*g2_2/2 + 11*g1_2/10 - 2*yt2 - 2*yb2
     );
-    double term3 = g3_4/pi6 * (
+    double term3 = g3_4/LOOP3 * (
         yt2*(15*yt2 - 40*g3_2 - 93*g2_2/8 - 101*g1_2/40) +
         65*g3_4/2 + 109*g2_4/8 - 523*g1_4/120 +
         21*g3_2*g2_2 + 77*g3_2*g1_2/15 - 3*g2_2*g1_2/40
     );
-    double term4 = g3_10/pi8 * 2472.28;
+    double term4 = g3_10/LOOP4 * 2472.28;
     
     return term1 + term2 + term3 + term4;
 }
@@ -155,13 +143,13 @@ double betaLambda(const Params& p) {
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     double yt4 = yt2*yt2, yb4 = yb2*yb2, ytau4 = ytau2*ytau2;
     
-    double term1 = (1/pi2) * (
+    double term1 = (1/LOOP1) * (
         p.lambda*(12*p.lambda + 6*yt2 + 6*yb2 + 2*ytau2 - 9*g2_2/2 - 9*g1_2/10) -
         3*yt4 - 3*yb4 - ytau4 +
         9*g2_4/16 + 27*g1_4/400 + 9*g2_2*g1_2/40
     );
     
-    double term2 = (1/pi4) * (
+    double term2 = (1/LOOP2) * (
         p.lambda*p.lambda*(-156*p.lambda - 72*yt2 - 72*yb2 - 24*ytau2 + 54*g2_2 + 54*g1_2/5) +
         p.lambda*yt2*(-3*yt2/2 - 21*yb2 + 40*g3_2 + 45*g2_2/4 + 17*g1_2/4) +
         p.lambda*yb2*(-3*yb2/2 + 40*g3_2 + 45*g2_2/4 + 5*g1_2/4) +
@@ -176,7 +164,7 @@ double betaLambda(const Params& p) {
         305*g2_6/32 - 3411*g1_6/4000 - 289*g2_4*g1_2/160 - 1677*g2_2*g1_4/800
     );
     
-    double term3 = (1/pi6) * (
+    double term3 = (1/LOOP3) * (
         p.lambda*p.lambda*p.lambda*(6011.35*p.lambda + 873*yt2 - 387.452*g2_2 - 77.490*g1_2) +
         p.lambda*p.lambda*yt2*(1768.26*yt2 + 160.77*g3_2 - 359.539*g2_2 - 63.869*g1_2) +
         p.lambda*p.lambda*(-790.28*g2_4 - 185.532*g1_4 - 316.64*g2_2*g1_2) +
@@ -201,9 +189,9 @@ double betaYt2(const Params& p) {
     double g3_6 = g3_4*g3_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     
-    double term1 = yt2/pi2 * ( 9*yt2/2 + 3*yb2/2 + ytau2 - 8*g3_2 - 9*g2_2/4 - 17*g1_2/20 );
-    double term2 = yt2/pi4 * ( yt2*(-12*yt2 - 11*yb2/4 - 9*ytau2/4 - 12*p.lambda + 36*g3_2 + 225*g2_2/16 + 393*g1_2/80) + yb2*(-yb2/4 + 5*ytau2/4 + 4*g3_2 + 99*g2_2/16 + 7*g1_2/80) + ytau2*(-9*ytau2/4 + 15*g2_2/8 + 15*g1_2/8) + 6*p.lambda*p.lambda - 108*g3_4 - 23*g2_4/4 + 1187*g1_4/600 + 9*g3_2*g2_2 + 19*g3_2*g1_2/15 - 9*g2_2*g1_2/20 );
-    double term3 = yt2/pi6 * ( yt2*(58.6028*yt2 + 198*p.lambda - 157*g3_2 - 1593*g2_2/16 - 2437*g1_2/80) + p.lambda*yt2*(15*p.lambda/4 + 16*g3_2 - 135*g2_2/2 - 127*g1_2/10) + yt2*(363.764*g3_4 + 16.990*g2_4 - 24.422*g1_4 + 48.370*g3_2*g2_2 + 18.074*g3_2*g1_2 + 34.829*g2_2*g1_2) + p.lambda*p.lambda*(-36*p.lambda + 45*g2_2 + 9*g1_2) + p.lambda*(-171*g2_4/16 - 1089*g1_4/400 + 117*g2_2*g1_2/40) - 619.35*g3_6 + 169.829*g2_4*g2_2 + 16.099*g1_4*g1_2 + 73.654*g3_4*g2_2 - 15.096*g3_4*g1_2 - 21.072*g3_2*g2_4 - 22.319*g3_2*g1_4 - 321*g3_2*g2_2*g1_2/20 - 4.743*g2_4*g1_2 - 4.442*g2_2*g1_4 );
+    double term1 = yt2/LOOP1 * ( 9*yt2/2 + 3*yb2/2 + ytau2 - 8*g3_2 - 9*g2_2/4 - 17*g1_2/20 );
+    double term2 = yt2/LOOP2 * ( yt2*(-12*yt2 - 11*yb2/4 - 9*ytau2/4 - 12*p.lambda + 36*g3_2 + 225*g2_2/16 + 393*g1_2/80) + yb2*(-yb2/4 + 5*ytau2/4 + 4*g3_2 + 99*g2_2/16 + 7*g1_2/80) + ytau2*(-9*ytau2/4 + 15*g2_2/8 + 15*g1_2/8) + 6*p.lambda*p.lambda - 108*g3_4 - 23*g2_4/4 + 1187*g1_4/600 + 9*g3_2*g2_2 + 19*g3_2*g1_2/15 - 9*g2_2*g1_2/20 );
+    double term3 = yt2/LOOP3 * ( yt2*(58.6028*yt2 + 198*p.lambda - 157*g3_2 - 1593*g2_2/16 - 2437*g1_2/80) + p.lambda*yt2*(15*p.lambda/4 + 16*g3_2 - 135*g2_2/2 - 127*g1_2/10) + yt2*(363.764*g3_4 + 16.990*g2_4 - 24.422*g1_4 + 48.370*g3_2*g2_2 + 18.074*g3_2*g1_2 + 34.829*g2_2*g1_2) + p.lambda*p.lambda*(-36*p.lambda + 45*g2_2 + 9*g1_2) + p.lambda*(-171*g2_4/16 - 1089*g1_4/400 + 117*g2_2*g1_2/40) - 619.35*g3_6 + 169.829*g2_4*g2_2 + 16.099*g1_4*g1_2 + 73.654*g3_4*g2_2 - 15.096*g3_4*g1_2 - 21.072*g3_2*g2_4 - 22.319*g3_2*g1_4 - 321*g3_2*g2_2*g1_2/20 - 4.743*g2_4*g1_2 - 4.442*g2_2*g1_4 );
     return term1 + term2 + term3;
 }
 double betaYb2(const Params& p) {
@@ -211,8 +199,8 @@ double betaYb2(const Params& p) {
     double g1_4 = g1_2*g1_2, g2_4 = g2_2*g2_2, g3_4 = g3_2*g3_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     
-    double term1 = yb2/pi2 * ( 3*yt2/2 + 9*yb2/2 + ytau2 - 8*g3_2 - 9*g2_2/4 - g1_2/4 );
-    double term2 = yb2/pi4 * ( yt2*(-yt2/4 - 11*yb2/4 + 5*ytau2/4 + 4*g3_2 + 99*g2_2/16 + 91*g1_2/80) + yb2*(-12*yb2 - 9*ytau2/4 - 12*p.lambda + 36*g3_2 + 225*g2_2/16 + 237*g1_2/80) + ytau2*(-9*ytau2/4 + 15*g2_2/8 + 15*g1_2/8) + 6*p.lambda*p.lambda - 108*g3_4 - 23*g2_4/4 - 127*g1_4/600 + 9*g3_2*g2_2 + 31*g3_2*g1_2/15 - 27*g2_2*g1_2/20 );
+    double term1 = yb2/LOOP1 * ( 3*yt2/2 + 9*yb2/2 + ytau2 - 8*g3_2 - 9*g2_2/4 - g1_2/4 );
+    double term2 = yb2/LOOP2 * ( yt2*(-yt2/4 - 11*yb2/4 + 5*ytau2/4 + 4*g3_2 + 99*g2_2/16 + 91*g1_2/80) + yb2*(-12*yb2 - 9*ytau2/4 - 12*p.lambda + 36*g3_2 + 225*g2_2/16 + 237*g1_2/80) + ytau2*(-9*ytau2/4 + 15*g2_2/8 + 15*g1_2/8) + 6*p.lambda*p.lambda - 108*g3_4 - 23*g2_4/4 - 127*g1_4/600 + 9*g3_2*g2_2 + 31*g3_2*g1_2/15 - 27*g2_2*g1_2/20 );
     return term1 + term2;
 }
 double betaYtau2(const Params& p) {
@@ -220,8 +208,8 @@ double betaYtau2(const Params& p) {
     double g1_4 = g1_2*g1_2, g2_4 = g2_2*g2_2;
     double yt2 = p.yt*p.yt, yb2 = p.yb*p.yb, ytau2 = p.ytau*p.ytau;
     
-    double term1 = ytau2/pi2 * ( 3*yt2 + 3*yb2 + 5*ytau2/2 - 9*g2_2/4 - 9*g1_2/4 );
-    double term2 = ytau2/pi4 * ( 6*p.lambda*p.lambda - 23*g2_4/4 + 1371*g1_4/200 + 27*g2_2*g1_2/20 + yt2*(-27*yt2/4 + 3*yb2/2 - 27*ytau2/4 + 20*p.g3*p.g3 + 45*g2_2/8 + 17*g1_2/8) + yb2*(-27*yb2/4 - 27*ytau2/4 + 20*p.g3*p.g3 + 45*g2_2/8 + 5*g1_2/8) + ytau2*(-3*ytau2 - 12*p.lambda + 165*g2_2/16 + 537*g1_2/80) );
+    double term1 = ytau2/LOOP1 * ( 3*yt2 + 3*yb2 + 5*ytau2/2 - 9*g2_2/4 - 9*g1_2/4 );
+    double term2 = ytau2/LOOP2 * ( 6*p.lambda*p.lambda - 23*g2_4/4 + 1371*g1_4/200 + 27*g2_2*g1_2/20 + yt2*(-27*yt2/4 + 3*yb2/2 - 27*ytau2/4 + 20*p.g3*p.g3 + 45*g2_2/8 + 17*g1_2/8) + yb2*(-27*yb2/4 - 27*ytau2/4 + 20*p.g3*p.g3 + 45*g2_2/8 + 5*g1_2/8) + ytau2*(-3*ytau2 - 12*p.lambda + 165*g2_2/16 + 537*g1_2/80) );
     return term1 + term2;
 }
 // --- RK4 SOLVER ---
@@ -283,7 +271,7 @@ double evaluate_action_at_R(RGEHelper& rge, double mu_inst, double R) {
     }
     
     double prefactor = sqrt(2.0 / std::abs(p_R.lambda));
-    double kinetic_term = (16.0 * pi2) / (3.0 * std::abs(p_R.lambda));
+    double kinetic_term = (16.0 * PI2) / (3.0 * std::abs(p_R.lambda));
     
     double potential_integral = 0;
     int N = 6400; // Fully converged per scaling test
@@ -306,7 +294,7 @@ double evaluate_action_at_R(RGEHelper& rge, double mu_inst, double R) {
             V_x = 0.25 * p_phi.lambda * pow(phi_x, 4);
         }
         
-        double integrand = 2.0 * pi2 * pow(R, 4) * e4x * V_x;
+        double integrand = 2.0 * PI2 * pow(R, 4) * e4x * V_x;
         
         double weight;
         if (i == 0 || i == N) weight = 1.0 / 3.0;
@@ -408,10 +396,13 @@ std::tuple<int, double, double> classify_stability(double Mh, double Mt) {
     if (!is_unstable) return std::make_tuple(1, -1.0, -1.0); // Stable
     
     
-    double S_approx = 8.0 * pi2 / (3.0 * std::abs(min_lambda));
+    double S_approx = 8.0 * PI2 / (3.0 * std::abs(min_lambda));
     double S_exact = find_minimum_action(rge, mu_inst, t_min_lambda);
     
-    if (S_exact > 400.0) return std::make_tuple(2, S_exact, S_approx); // Metastable
+    double Tv = 1.179e44 / v;
+    double S_threshold = 4.0 * std::log(Tv * mu_inst);
+    
+    if (S_exact > S_threshold) return std::make_tuple(2, S_exact, S_approx); // Metastable
     return std::make_tuple(3, S_exact, S_approx); // Unstable
 }
 

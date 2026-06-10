@@ -10,7 +10,8 @@
 #include <fstream>
 #include <iomanip>
 #include <tuple>
-
+#include <omp.h>
+#include <atomic>
 using namespace std;
 
 // --- PHYSICAL CONSTANTS ---
@@ -211,7 +212,7 @@ int classify_stability(double Mh, double Mt) {
     double yt0 = 0.93690 + 0.00556 * (Mt - 173.34) - 0.00042 * (alpha3_at_Mz - 0.1184) / 0.0007;
     // --------------------------------------------------------
 
-    double t0 = 2*log(172.5); // Start at Top mass scale approx
+    double t0 = 2*log(std::max(Mt, 10.0)); // Start at Top mass scale
     double tPlanck = 2*log(MPlanck);
     
     Params y = {g1init, g2init, g3init, yt0, yb0, ytau0, lambda0, 0};
@@ -227,8 +228,8 @@ int classify_stability(double Mh, double Mt) {
         rk4_step(y, t, dt, false);
         
         // Non-perturbative check (Lambda > 4*pi or couplings blow up)
-        if (y.lambda > 4.0*pi || y.g1 > 10.0 || y.yt > 10.0) return 4; 
-        if (!isfinite(y.lambda) || !isfinite(y.yt)) return 4;
+        if (std::abs(y.lambda) > 4.0*pi || y.yt > 4.0*pi) return 4; 
+        if (!std::isfinite(y.lambda) || !std::isfinite(y.yt)) return 4;
 
         if (y.lambda < lambda_min) lambda_min = y.lambda;
         
@@ -255,7 +256,7 @@ int classify_stability(double Mh, double Mt) {
 double compute_higgs_mass(double Mt, double Mh_input) {
     double lambda0 = Mh_input*Mh_input / (2*v*v);
     double yb0 = sqrt(2)*Mb/v, ytau0 = sqrt(2)*Mtau/v;
-    double t0 = 2*log(172.5), tv = 2*log(v);
+    double t0 = 2*log(std::max(Mt, 10.0)), tv = 2*log(v);
     
     // --- KEY FIX: Consistent NNLO Matching here too ---
     double yt0 = 0.93690 + 0.00556 * (Mt - 173.34) - 0.00042 * (alpha3_at_Mz - 0.1184) / 0.0007;
@@ -288,12 +289,20 @@ int classify_point(double Mt, double Mh_input, double& calculated_mh) {
 void process_chunk(const vector<pair<double,double>>& points, 
                    vector<tuple<double,double,double,int>>& results, 
                    int start, int end) {
+    #pragma omp parallel for schedule(dynamic, 100)
     for (int i = start; i < end; ++i) {
         double Mt = points[i].first;
         double Mh_input = points[i].second;
         double calculated_mh;
         int stability = classify_point(Mt, Mh_input, calculated_mh);
         results[i] = make_tuple(Mt, calculated_mh, Mh_input, stability);
+        
+        if (i % 50000 == 0) {
+            #pragma omp critical
+            {
+                cout << "Processed " << i << " / " << points.size() << " (" << (i * 100.0 / points.size()) << "%)" << endl;
+            }
+        }
     }
 }
 
@@ -302,9 +311,9 @@ int main() {
     vector<pair<double,double>> points;
     // Increased range to ensure we capture the full phase space
 
-    // Also add a coarser wide grid just in case
-    for (double Mt = 0; Mt <= 300; Mt += 2.0) {
-        for (double Mh = 0; Mh <= 300; Mh += 2.0) {
+    double step = 0.25;
+    for (double Mt = 0.0; Mt <= 250.0; Mt += step) {
+        for (double Mh = 0.0; Mh <= 400.0; Mh += step) {
             points.emplace_back(Mt, Mh);
         }
     }
@@ -314,8 +323,8 @@ int main() {
     vector<tuple<double,double,double,int>> results(points.size());
     process_chunk(points, results, 0, points.size());
     
-    ofstream file("../../results/data.csv");
-    file << "Mt,Calculated_Mh,Input_Mh,Stability\n";
+    ofstream file("results/analytical_data.csv");
+    file << "Mt,Mh_calc,Input_Mh,Stability\n";
     for (size_t i = 0; i < results.size(); ++i) {
         double Mt = std::get<0>(results[i]);
         double calculated_mh = std::get<1>(results[i]);

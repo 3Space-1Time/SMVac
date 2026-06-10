@@ -15,9 +15,10 @@ const double Mtau = 1.777;
 const double Mb = 4.0;
 const double alpha3_at_Mz = 0.1184; 
 const double pi = 3.14159265358979323846;
-const double pi2 = pow(4*pi, 2);
-const double pi4 = pi2*pi2;
-const double pi6 = pi2*pi2*pi2;
+const double PI2 = pi * pi;
+const double LOOP1 = 16.0 * PI2;
+const double LOOP2 = LOOP1 * LOOP1;
+const double LOOP3 = LOOP2 * LOOP1;
 const double g1init = 0.46;
 const double g2init = 0.65;
 const double g3init = 1.1666;
@@ -70,16 +71,16 @@ public:
 };
 
 // ... RGE Beta functions ...
-double betaG1sq(const Params& p) { return p.g1*p.g1*p.g1*p.g1/pi2 * 4.1; } // Simplified for speed in this test setup
-double betaG2sq(const Params& p) { return p.g2*p.g2*p.g2*p.g2/pi2 * -3.166; }
-double betaG3sq(const Params& p) { return p.g3*p.g3*p.g3*p.g3/pi2 * -7; }
+double betaG1sq(const Params& p) { return p.g1*p.g1*p.g1*p.g1/LOOP1 * 4.1; } // Simplified for speed in this test setup
+double betaG2sq(const Params& p) { return p.g2*p.g2*p.g2*p.g2/LOOP1 * -3.166; }
+double betaG3sq(const Params& p) { return p.g3*p.g3*p.g3*p.g3/LOOP1 * -7; }
 double betaLambda(const Params& p) {
     double g1_2=p.g1*p.g1, g2_2=p.g2*p.g2, yt2=p.yt*p.yt;
-    return (1/pi2) * (p.lambda*(12*p.lambda + 6*yt2 - 4.5*g2_2 - 0.9*g1_2) - 3*yt2*yt2 + 0.5625*g2_2*g2_2);
+    return (1/LOOP1) * (p.lambda*(12*p.lambda + 6*yt2 - 4.5*g2_2 - 0.9*g1_2) - 3*yt2*yt2 + 0.5625*g2_2*g2_2);
 }
 double betaYt2(const Params& p) {
     double g1_2=p.g1*p.g1, g2_2=p.g2*p.g2, g3_2=p.g3*p.g3, yt2=p.yt*p.yt;
-    return yt2/pi2 * (4.5*yt2 - 8*g3_2 - 2.25*g2_2 - 0.85*g1_2);
+    return yt2/LOOP1 * (4.5*yt2 - 8*g3_2 - 2.25*g2_2 - 0.85*g1_2);
 }
 
 Params rk4_single_step(const Params& y, double t, double dt) {

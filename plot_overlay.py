@@ -1,71 +1,137 @@
+"""
+Overlay / comparison plot between analytical and numerical stability maps.
+
+Colouring rules:
+  - Points where both methods AGREE on stability → plotted in that stability's colour
+      Stable      = green
+      Metastable  = yellow / goldenrod
+      Unstable    = red
+      Non-pert.   = black / grey
+  - Points where the two methods DISAGREE → plotted in BLUE
+      (these mark the boundary shift between analytical and numerical)
+
+Both the full plot and a close-up around the experimental point are saved.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
 
-def create_overlay_plot():
-    df_ana = pd.read_csv('results/analytical_data.csv')
-    df_num = pd.read_csv('results/numerical_data.csv')
+# ── colour map ────────────────────────────────────────────────────────────────
+COLOUR = {
+    1: 'green',   # stable
+    2: 'yellow',  # metastable
+    3: 'red',     # unstable
+    4: 'black',   # non-perturbative
+}
+DIFF_COLOUR = 'blue'   # disagreement between methods
 
-    plt.figure(figsize=(10, 8))
+# ── helper: align grids ───────────────────────────────────────────────────────
+from scipy.spatial import cKDTree
 
-    # Analytical regions
-    ana_metastable = df_ana[df_ana['Stability'] == 2]
-    ana_unstable = df_ana[df_ana['Stability'] == 3]
-
-    # Numerical regions
-    num_metastable = df_num[df_num['Stability'] == 2]
-    num_unstable = df_num[df_num['Stability'] == 3]
-
-    # Overlay colors: We will just plot lines to show boundaries, or plot them as scattered domains.
-    # To see the difference, it's easiest to plot one as solid points and the other as hollow points, 
-    # but with 400k points that's too heavy. Instead, let's plot the boundaries.
+def align_data(df_ana, df_num):
+    df_ana['_Mt']  = df_ana['Mt'].round(6)
+    df_ana['_Mh']  = df_ana['Mh_calc'].round(6)
+    df_num['_Mt']  = df_num['Mt'].round(6)
+    df_num['_Mh']  = df_num['Mh_calc'].round(6)
     
-    # Let's plot the numerical as the base color
-    plt.scatter(df_num[df_num['Stability'] == 1]['Mh_calc'], df_num[df_num['Stability'] == 1]['Mt'], c='green', alpha=0.3, s=5, label='Stable (Both)')
-    plt.scatter(num_metastable['Mh_calc'], num_metastable['Mt'], c='yellow', alpha=0.3, s=5, label='Metastable (Numerical)')
-    plt.scatter(num_unstable['Mh_calc'], num_unstable['Mt'], c='red', alpha=0.3, s=5, label='Unstable (Numerical)')
+    tree = cKDTree(df_num[['_Mt', '_Mh']].values)
+    dists, indices = tree.query(df_ana[['_Mt', '_Mh']].values)
     
-    # We can plot the Analytical unstable region points that are metastable in numerical.
-    # We will identify the points where analytical and numerical DISAGREE.
-    merged = pd.merge(df_ana, df_num, on=['Mt', 'Mh_calc'], suffixes=('_ana', '_num'))
+    # Accept matches within a small distance
+    valid = dists < 1.0
     
-    diff = merged[merged['Stability_ana'] != merged['Stability_num']]
-    
-    if not diff.empty:
-        plt.scatter(diff['Mh_calc'], diff['Mt'], c='blue', alpha=1.0, s=5, label='Difference (Boundary Shift)')
-    
-    plt.scatter(125.10, 173.1, color='blue', marker='*', s=200, edgecolor='black', label='Experimental (125.1, 173.1)')
+    merged = pd.DataFrame({
+        '_Mt': df_ana['_Mt'].values[valid],
+        '_Mh': df_ana['_Mh'].values[valid],
+        'S_ana': df_ana['Stability'].values[valid],
+        'S_num': df_num['Stability'].values[indices[valid]]
+    })
+    return merged
 
-    plt.xlabel('Higgs Mass $M_h$ (GeV)')
-    plt.ylabel('Top Mass $M_t$ (GeV)')
-    plt.title('Vacuum Stability Phase Diagram Overlay (Analytical vs Numerical)')
-    plt.legend(loc='lower right')
-    plt.grid(True, linestyle='--', alpha=0.7)
+# ── helper: build per-stability masks for agreeing points ─────────────────────
+def plot_stability_diagram(ax, merged, s_agree=3, s_disagree=8, xlim=None, ylim=None):
+    Mt  = merged['_Mt'].values
+    Mh  = merged['_Mh'].values
+    S_a = merged['S_ana'].values
+    S_n = merged['S_num'].values
 
-    plt.savefig('results/overlay_plot.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    
-    # Close-up plot
-    plt.figure(figsize=(10, 8))
-    plt.scatter(df_num[df_num['Stability'] == 1]['Mh_calc'], df_num[df_num['Stability'] == 1]['Mt'], c='green', alpha=0.3, s=5)
-    plt.scatter(num_metastable['Mh_calc'], num_metastable['Mt'], c='yellow', alpha=0.3, s=5)
-    plt.scatter(num_unstable['Mh_calc'], num_unstable['Mt'], c='red', alpha=0.3, s=5)
-    
-    if not diff.empty:
-        plt.scatter(diff['Mh_calc'], diff['Mt'], c='blue', alpha=1.0, s=15, label='Difference (Boundary Shift)')
-        
-    plt.scatter(125.10, 173.1, color='blue', marker='*', s=300, edgecolor='black', label='Experimental (125.1, 173.1)')
-    plt.xlim(110, 140)
-    plt.ylim(160, 185)
-    
-    plt.xlabel('Higgs Mass $M_h$ (GeV)')
-    plt.ylabel('Top Mass $M_t$ (GeV)')
-    plt.title('Vacuum Stability Phase Diagram Overlay (Close-up)')
-    plt.legend(loc='lower right')
-    plt.grid(True, linestyle='--', alpha=0.7)
+    agree    = S_a == S_n
+    disagree = ~agree
 
-    plt.savefig('results/overlay_closeup_plot.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    # Plot agreeing points – grouped by stability value for legend clarity
+    for stab_val, label in [(1, 'Stable'), (2, 'Metastable'), (3, 'Unstable'), (4, 'Non-perturbative')]:
+        mask = agree & (S_n == stab_val)
+        if mask.sum() == 0:
+            continue
+        ax.scatter(Mh[mask], Mt[mask],
+                   c=COLOUR[stab_val], alpha=0.5, s=s_agree,
+                   label=f'{label} (both agree)', rasterized=True)
 
-if __name__ == "__main__":
-    create_overlay_plot()
-    print("Overlay plots generated.")
+    # Plot disagreeing points on top in blue
+    if disagree.sum() > 0:
+        ax.scatter(Mh[disagree], Mt[disagree],
+                   c=DIFF_COLOUR, alpha=0.9, s=s_disagree, zorder=10,
+                   label='Disagreement (boundary shift)', rasterized=True)
+
+    # Experimental point
+    ax.scatter(125.10, 173.1, color='blue', marker='*', s=200,
+               edgecolor='black', zorder=15,
+               label='Experimental (125.1, 173.1)')
+
+    ax.set_xlabel('Higgs Mass $M_h$ (GeV)', fontsize=12)
+    ax.set_ylabel('Top Mass $M_t$ (GeV)', fontsize=12)
+    ax.grid(True, linestyle='--', alpha=0.4)
+
+    if xlim:
+        ax.set_xlim(xlim)
+    if ylim:
+        ax.set_ylim(ylim)
+
+    ax.legend(loc='lower right', fontsize=9, markerscale=2)
+
+# ── full plot ─────────────────────────────────────────────────────────────────
+print("Loading broad analytical data for full plot …")
+df_ana_full = pd.read_csv('results/analytical_data.csv')
+
+print("Loading broad numerical data for full plot …")
+df_num_full = pd.read_csv('results/numerical_data.csv')
+
+print("Aligning broad grids …")
+merged_full = align_data(df_ana_full, df_num_full)
+print(f"Merged full points: {len(merged_full):,}")
+
+print("Generating full overlay plot …")
+fig, ax = plt.subplots(figsize=(11, 9))
+plot_stability_diagram(ax, merged_full, s_agree=3, s_disagree=8)
+ax.set_title('Vacuum Stability: Analytical vs Numerical Overlay\n'
+             '(Blue = disagreement between methods)', fontsize=13)
+fig.tight_layout()
+fig.savefig('results/overlay_plot.png', dpi=200, bbox_inches='tight')
+plt.close(fig)
+print("Saved results/overlay_plot.png")
+
+# ── close-up plot ─────────────────────────────────────────────────────────────
+print("\nLoading dense analytical closeup data for closeup plot …")
+df_ana_dense = pd.read_csv('results/analytical_dense_closeup.csv')
+
+print("Loading dense numerical closeup data for closeup plot …")
+df_num_dense = pd.read_csv('results/numerical_dense_closeup.csv')
+
+print("Aligning dense closeup grids …")
+merged_dense = align_data(df_ana_dense, df_num_dense)
+print(f"Merged dense closeup points: {len(merged_dense):,}")
+
+print("Generating close-up overlay plot …")
+fig, ax = plt.subplots(figsize=(11, 9))
+plot_stability_diagram(ax, merged_dense, s_agree=1, s_disagree=2, xlim=(110, 140), ylim=(160, 185))
+ax.set_title('Vacuum Stability Overlay – Close-up\n'
+             '(Blue = disagreement between methods)', fontsize=13)
+fig.tight_layout()
+fig.savefig('results/overlay_closeup_plot.png', dpi=200, bbox_inches='tight')
+plt.close(fig)
+print("Saved results/overlay_closeup_plot.png")
+
+print("\nDone!")
+

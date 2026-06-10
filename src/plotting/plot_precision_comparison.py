@@ -51,9 +51,10 @@ contour2 = plt.tricontourf(X, Y, Z_exact, levels=50, cmap='viridis')
 cbar2 = plt.colorbar(contour2)
 cbar2.set_label('Exact Bounce Action $S_4$', fontsize=12)
 
-# Overlay the S=400 contour (Metastability boundary)
-plt.tricontour(X, Y, Z_exact, levels=[400.0], colors='red', linewidths=2, linestyles='--')
-plt.plot([],[], color='red', linestyle='--', linewidth=2, label='S = 400 (Exact Metastability Boundary)')
+# Overlay the dynamic Metastability boundary (where Stability transitions from 2 to 3)
+Z_stab = df_valid['Stability'].values
+plt.tricontour(X, Y, Z_stab, levels=[2.5], colors='red', linewidths=2, linestyles='--')
+plt.plot([],[], color='red', linestyle='--', linewidth=2, label='Exact Metastability Boundary')
 
 plt.plot(sm_mh, sm_mt, marker='*', markersize=15, color='white', markeredgecolor='black', label='SM Vacuum')
 

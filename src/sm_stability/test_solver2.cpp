@@ -24,9 +24,10 @@ const double Mtau = 1.777;
 const double Mb = 4.0;
 const double alpha3_at_Mz = 0.1184; 
 const double pi = M_PI;
-const double pi2 = pow(4*pi, 2);
-const double pi4 = pi2*pi2;
-const double pi6 = pi2*pi2*pi2;
+const double PI2 = pi * pi;
+const double LOOP1 = 16.0 * PI2;
+const double LOOP2 = LOOP1 * LOOP1;
+const double LOOP3 = LOOP2 * LOOP1;
 
 // SM Initial Couplings
 const double g1init = 0.46;
@@ -71,9 +72,9 @@ double betaG1sq(const Params& p) {
     double g1_4=g1_2*g1_2, g2_4=g2_2*g2_2, g3_4=g3_2*g3_2;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
     
-    double t1 = g1_4/pi2 * 4.1;
-    double t2 = g1_4/pi4 * (4.4*g3_2 + 2.7*g2_2 + 3.98*g1_2 - 1.7*yt2 - 0.5*yb2 - 1.5*ytau2);
-    double t3 = g1_4/pi6 * (
+    double t1 = g1_4/LOOP1 * 4.1;
+    double t2 = g1_4/LOOP2 * (4.4*g3_2 + 2.7*g2_2 + 3.98*g1_2 - 1.7*yt2 - 0.5*yb2 - 1.5*ytau2);
+    double t3 = g1_4/LOOP3 * (
         yt2*(11.8125*yt2 - 5.8*g3_2 - 14.71*g2_2 - 3.53*g1_2) +
         p.lambda*(-1.8*p.lambda + 0.9*g2_2 + 0.54*g1_2) +
         59.4*g3_4 + 12.32*g2_4 - 16.19*g1_4 - 0.6*g3_2*g2_2 - 1.82*g3_2*g1_2 + 0.76*g2_2*g1_2
@@ -86,9 +87,9 @@ double betaG2sq(const Params& p) {
     double g2_4=g2_2*g2_2, g3_4=g3_2*g3_2, g1_4=g1_2*g1_2;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
 
-    double t1 = g2_4/pi2 * (-3.166);
-    double t2 = g2_4/pi4 * (12*g3_2 + 5.83*g2_2 + 0.9*g1_2 - 1.5*yt2 - 1.5*yb2 - 0.5*ytau2);
-    double t3 = g2_4/pi6 * (
+    double t1 = g2_4/LOOP1 * (-3.166);
+    double t2 = g2_4/LOOP2 * (12*g3_2 + 5.83*g2_2 + 0.9*g1_2 - 1.5*yt2 - 1.5*yb2 - 0.5*ytau2);
+    double t3 = g2_4/LOOP3 * (
         yt2*(9.18*yt2 - 7*g3_2 - 22.78*g2_2 - 3.7*g1_2) +
         p.lambda*(-3*p.lambda + 1.5*g2_2 + 0.3*g1_2) +
         81*g3_4 + 188.05*g2_4 - 3.49*g1_4 + 39*g3_2*g2_2 - 0.2*g3_2*g1_2 + 5.45*g2_2*g1_2
@@ -101,9 +102,9 @@ double betaG3sq(const Params& p) {
     double g3_4=g3_2*g3_2, g2_4=g2_2*g2_2, g1_4=g1_2*g1_2;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb;
 
-    double t1 = -g3_4/pi2 * 7;
-    double t2 = g3_4/pi4 * (-26*g3_2 + 4.5*g2_2 + 1.1*g1_2 - 2*yt2 - 2*yb2);
-    double t3 = g3_4/pi6 * (
+    double t1 = -g3_4/LOOP1 * 7;
+    double t2 = g3_4/LOOP2 * (-26*g3_2 + 4.5*g2_2 + 1.1*g1_2 - 2*yt2 - 2*yb2);
+    double t3 = g3_4/LOOP3 * (
         yt2*(15*yt2 - 40*g3_2 - 11.625*g2_2 - 2.525*g1_2) +
         32.5*g3_4 + 13.625*g2_4 - 4.35*g1_4 + 21*g3_2*g2_2 + 5.13*g3_2*g1_2 - 0.075*g2_2*g1_2
     );
@@ -116,10 +117,10 @@ double betaLambda(const Params& p) {
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
     double yt4=yt2*yt2;
 
-    double t1 = (1/pi2) * (p.lambda*(12*p.lambda + 6*yt2 + 6*yb2 + 2*ytau2 - 4.5*g2_2 - 0.9*g1_2) 
+    double t1 = (1/LOOP1) * (p.lambda*(12*p.lambda + 6*yt2 + 6*yb2 + 2*ytau2 - 4.5*g2_2 - 0.9*g1_2) 
                 - 3*yt4 - 3*pow(p.yb,4) - pow(p.ytau,4) + 0.5625*g2_4 + 0.0675*g1_4 + 0.225*g2_2*g1_2);
     
-    double t2 = (1/pi4) * (
+    double t2 = (1/LOOP2) * (
         p.lambda*p.lambda*(-156*p.lambda - 72*yt2 - 72*yb2 - 24*ytau2 + 54*g2_2 + 10.8*g1_2) +
         p.lambda*yt2*(-1.5*yt2 - 21*yb2 + 40*g3_2 + 11.25*g2_2 + 4.25*g1_2) +
         p.lambda*(-4.5*g2_4 + 4.7*g1_4 + 2.9*g2_2*g1_2) + 
@@ -132,8 +133,8 @@ double betaYt2(const Params& p) {
     double g1_2=p.g1*p.g1, g2_2=p.g2*p.g2, g3_2=p.g3*p.g3;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
     
-    double t1 = yt2/pi2 * (4.5*yt2 + 1.5*yb2 + ytau2 - 8*g3_2 - 2.25*g2_2 - 0.85*g1_2);
-    double t2 = yt2/pi4 * (
+    double t1 = yt2/LOOP1 * (4.5*yt2 + 1.5*yb2 + ytau2 - 8*g3_2 - 2.25*g2_2 - 0.85*g1_2);
+    double t2 = yt2/LOOP2 * (
         yt2*(-12*yt2 - 2.75*yb2 - 2.25*ytau2 - 12*p.lambda + 36*g3_2 + 14.06*g2_2 + 4.9*g1_2) +
         6*p.lambda*p.lambda - 108*pow(p.g3,4) - 5.75*pow(p.g2,4) + 1.9*pow(p.g1,4) + 
         9*g3_2*g2_2 + 1.2*g3_2*g1_2 - 0.45*g2_2*g1_2
@@ -144,13 +145,13 @@ double betaYt2(const Params& p) {
 double betaYb2(const Params& p) {
     double g1_2=p.g1*p.g1, g2_2=p.g2*p.g2, g3_2=p.g3*p.g3;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
-    return yb2/pi2 * (1.5*yt2 + 4.5*yb2 + ytau2 - 8*g3_2 - 2.25*g2_2 - 0.25*g1_2);
+    return yb2/LOOP1 * (1.5*yt2 + 4.5*yb2 + ytau2 - 8*g3_2 - 2.25*g2_2 - 0.25*g1_2);
 }
 
 double betaYtau2(const Params& p) {
     double g1_2=p.g1*p.g1, g2_2=p.g2*p.g2;
     double yt2=p.yt*p.yt, yb2=p.yb*p.yb, ytau2=p.ytau*p.ytau;
-    return ytau2/pi2 * (3*yt2 + 3*yb2 + 2.5*ytau2 - 2.25*g2_2 - 2.25*g1_2);
+    return ytau2/LOOP1 * (3*yt2 + 3*yb2 + 2.5*ytau2 - 2.25*g2_2 - 2.25*g1_2);
 }
 
 // --- RK4 SOLVER ---
@@ -214,7 +215,7 @@ double evaluate_action_at_R(RGEHelper& rge, double mu_inst, double R) {
     if (lambda_R >= 0) return 1e100; 
     
     double prefactor = sqrt(2.0 / std::abs(lambda_R));
-    double kinetic_term = (16.0 * pi2) / (3.0 * std::abs(lambda_R));
+    double kinetic_term = (16.0 * PI2) / (3.0 * std::abs(lambda_R));
     
     double potential_integral = 0;
     int N = 6400; // Fully converged per scaling test
@@ -237,7 +238,7 @@ double evaluate_action_at_R(RGEHelper& rge, double mu_inst, double R) {
             V_x = 0.25 * p_phi.lambda * pow(phi_x, 4);
         }
         
-        double integrand = 2.0 * pi2 * pow(R, 4) * e4x * V_x;
+        double integrand = 2.0 * PI2 * pow(R, 4) * e4x * V_x;
         
         double weight;
         if (i == 0 || i == N) weight = 1.0 / 3.0;
@@ -338,10 +339,13 @@ std::tuple<int, double, double> classify_stability(double Mh, double Mt) {
     
     if (!is_unstable) return std::make_tuple(1, -1.0, -1.0); // Stable
     
-    double S_approx = 8.0 * pi2 / (3.0 * std::abs(min_lambda));
+    double S_approx = 8.0 * PI2 / (3.0 * std::abs(min_lambda));
     double S_exact = find_minimum_action(rge, mu_inst, t_min_lambda);
     
-    if (S_exact > 400.0) return std::make_tuple(2, S_exact, S_approx); // Metastable
+    double Tv = 1.179e44 / v;
+    double S_threshold = 4.0 * std::log(Tv * mu_inst);
+    
+    if (S_exact > S_threshold) return std::make_tuple(2, S_exact, S_approx); // Metastable
     return std::make_tuple(3, S_exact, S_approx); // Unstable
 }
 
