@@ -51,15 +51,15 @@ However, near the metastability boundary,the full running of the couplings intro
 
 ```mermaid
 flowchart TD
-    A[Input Parameters: Mh, Mt] --> B[NNLO Matching]
-    B --> C[3-Loop RG Evolution (RK4)]
-    C --> D[RG-Improved Effective Potential]
-    D --> E[Fubini-Lipatov Ansatz]
-    E --> F[Radius Optimization (Golden-Section Search)]
-    F --> G[Simpson Integration of Potential]
-    G --> H[Phase Classification]
-    H --> I[CSV Output]
-    I --> J[Python Plotting Scripts]
+    A["Input Parameters: Mh, Mt"] --> B["NNLO Matching"]
+    B --> C["3-Loop RG Evolution (RK4)"]
+    C --> D["RG-Improved Effective Potential"]
+    D --> E["Fubini-Lipatov Ansatz"]
+    E --> F["Radius Optimization (Golden-Section Search)"]
+    F --> G["Simpson Integration of Potential"]
+    G --> H["Phase Classification"]
+    H --> I["CSV Output"]
+    I --> J["Python Plotting Scripts"]
 ```
 
 ---
