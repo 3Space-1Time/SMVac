@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Compile Analytical Solver
+      run: g++ -std=c++17 -O3 -fopenmp solver_analytical.cpp -o solver_analytical.exe
+
+    - name: Compile Numerical Solver
+      run: g++ -std=c++17 -O3 -fopenmp solver_numerical.cpp -o solver_numerical.exe
+      
+    - name: Run Basic Diagnostics
+      run: |
+        # Ensure solvers can run correctly on a tiny chunk without crashing
+        ./solver_analytical.exe 0 10
+        ./solver_numerical.exe 0 10

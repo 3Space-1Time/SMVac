@@ -18,7 +18,7 @@ SMVac is a computational framework for studying electroweak vacuum stability in 
 
 ## Primary Result
 
-![Phase Diagram](results/numerical_stability_contours.png)
+![Phase Diagram](figures/phase_diagram.png)
 *Phase diagram of the Standard Model vacuum across the Higgs–top mass plane, constructed using the RG-improved Fubini–Lipatov action.*
 
 ---
@@ -77,13 +77,12 @@ graph TD
 
 ## Repository Structure
 
-- **`solver_numerical.cpp`**: Main C++ program implementing the matching, RGE evolution, and the RG-improved Fubini-Lipatov action calculation.
-- **`solver_analytical.cpp`**: C++ program implementing the strict conformal approximation $S \simeq 8\pi^2 / (3|\lambda_{\text{min}}|)$.
-- **`run_numerical.py` / `run_analytical.py`**: Python workflow scripts that execute the compiled C++ solvers over large parameter grids via multiprocessing.
-- **`plot_*.py`**: Matplotlib-based visualization scripts.
-- **`src/`**: Additional exploratory C++ routines and diagnostic scripts.
-- **`results/`**: Output directory for generated CSV datasets and figures.
-- **`paper/`**: LaTeX source files for the associated manuscript.
+- **`apps/`**: C++ numerical and analytical solvers (e.g., `solver_numerical.cpp`).
+- **`scripts/`**: Python orchestration and visualization scripts (e.g., `run_numerical.py`).
+- **`src/`**: Additional exploratory C++ routines and internal components.
+- **`data/`**: Output directory for generated CSV datasets.
+- **`figures/`**: Output directory for generated phase diagrams and plots.
+- **`docs/`**: Documentation and verification planning files.
 
 ---
 
@@ -96,9 +95,9 @@ git clone https://github.com/namangoyal31/SMVac.git
 cd SMVac
 
 # Compile the numerical solver used by the Python sweep scripts
-g++ -std=c++17 -O3 -fopenmp solver_numerical.cpp -o generate_phase_diagram.exe
+g++ -std=c++17 -O3 -fopenmp apps/solver_numerical.cpp -o apps/generate_phase_diagram.exe
 ```
-*(Note: The Python wrapper scripts explicitly expect the executable to be named `generate_phase_diagram.exe`.)*
+*(Note: The Python wrapper scripts explicitly expect the executable to be named `apps/generate_phase_diagram.exe`.)*
 
 ---
 
@@ -109,12 +108,12 @@ Data generation is separated from visualization. To reproduce the phase diagram:
 1. **Compile the solver** as shown in the Installation section.
 2. **Run the parameter sweep** across the $(M_h, M_t)$ plane:
    ```bash
-   python run_numerical.py
+   python scripts/run_numerical.py
    ```
    *(This script distributes the workload across 12 processes. Generating the 1-million point grid will take several hours.)*
 3. **Generate the phase diagram** from the CSV output:
    ```bash
-   python plot_numerical_contours.py
+   python scripts/plot_numerical_contours.py
    ```
 
 ---
@@ -123,7 +122,7 @@ Data generation is separated from visualization. To reproduce the phase diagram:
 
 The numerical integration routines in this repository have been benchmarked against the strict analytical conformal limit $S_{\text{approx}} = 8\pi^2 / (3|\lambda_{\text{min}}|)$. 
 
-Extracted from the repository's `results/numerical_data.csv` output:
+Extracted from the repository's `data/numerical_data.csv` output:
 - **Deep Metastability** ($M_h = 115.0, M_t = 180.0$): The RG-improved action deviates from the pure analytical approximation by only **-0.01%**, confirming that the conformal limit holds deep in the unstable regime.
 - **Near the Phase Boundary** ($M_h = 134.75, M_t = 176.50$): The RG-improved action deviates by **32.1%**, illustrating significant deviations from the constant-coupling approximation near the metastability boundary.
 
@@ -132,11 +131,11 @@ Extracted from the repository's `results/numerical_data.csv` output:
 ## Results
 
 ### Analytical vs RG-Improved Disagreement
-![Overlay Plot](results/overlay_plot.png)
+![Overlay Plot](figures/overlay.png)
 *This figure highlights the regions where the strict analytical approximation (conformal limit) misclassifies the vacuum state compared to the RG-improved calculation. The differences emerge primarily near the stability boundary where the running of the couplings cannot be ignored.*
 
 ### Optimization Convergence
-![Convergence Plot](results/bisection_plot.png)
+![Convergence Plot](figures/convergence.png)
 *This diagnostic plot demonstrates the internal convergence behavior of the solver's minimization algorithms. (Note: specific diagnostic scripts under `src/` are used to generate these convergence traces).*
 
 ---
