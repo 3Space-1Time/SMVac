@@ -18,7 +18,7 @@ SMVac is a computational framework for studying electroweak vacuum stability in 
 
 ## Primary Result
 
-![Phase Diagram](figures/phase_diagram.png)
+![Phase Diagram](figures/phase_diagram_contours.png)
 *Phase diagram of the Standard Model vacuum across the Higgs–top mass plane, constructed using the RG-improved Fubini–Lipatov action.*
 
 ---
