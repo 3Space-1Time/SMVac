@@ -544,7 +544,7 @@ int main(int argc, char* argv[]) {
         end_idx = points.size();
     }
     
-    std::string filename = "results/ode_grid_data_chunk_" + std::to_string(start_idx) + ".csv";
+    std::string filename = "data/ode_grid_data_chunk_" + std::to_string(start_idx) + ".csv";
     std::ofstream file(filename);
     file << "Mt,Mh_calc,Stability,S_exact,S_approx\n";
     

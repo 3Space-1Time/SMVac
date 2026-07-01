@@ -286,7 +286,7 @@ int main(int argc, char* argv[]) {
         end_idx = points.size();
     }
     
-    std::string filename = "results/analytical_data_chunk_" + std::to_string(start_idx) + ".csv";
+    std::string filename = "data/analytical_data_chunk_" + std::to_string(start_idx) + ".csv";
     ofstream file(filename);
     file << "Mt,Mh_calc,Stability,S_approx\n";
     

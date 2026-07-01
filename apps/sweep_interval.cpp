@@ -502,7 +502,7 @@ int main(int argc, char* argv[]) {
     // Now hack shoot to record trace for the selected ones
     for (size_t i = 0; i < trace_phis.size(); i++) {
         double phi_0 = trace_phis[i];
-        std::string fname = "results/trace_" + std::to_string(i) + ".csv";
+        std::string fname = "data/trace_" + std::to_string(i) + ".csv";
         std::ofstream trace(fname);
         trace << "r,phi,dphi,V,dV\n";
         

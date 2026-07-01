@@ -717,7 +717,7 @@ int main() {
         std::cout << "R_half       = " << R_half << std::endl;
         
         // Save profile
-        std::string filename = "results/ode_profile_" + std::to_string((int)Mt) + ".csv";
+        std::string filename = "data/ode_profile_" + std::to_string((int)Mt) + ".csv";
         std::ofstream fout(filename);
         fout << "r,phi,dphi\n";
         for(auto p : profile) {
