@@ -61,7 +61,7 @@ def create_contour_plot():
 
     plt.xlabel('Higgs Mass $M_h$ (GeV)', fontsize=12)
     plt.ylabel('Top Mass $M_t$ (GeV)', fontsize=12)
-    plt.title('Numerical Phase Diagram with Constant Action Contours', fontsize=14)
+    plt.title('FL Phase Diagram with Constant Action Contours', fontsize=14)
     
     # Set the same bounds as the standard numerical plot (0 to 250)
     plt.xlim(0, 250)
@@ -70,7 +70,7 @@ def create_contour_plot():
     plt.legend(loc='lower right')
     plt.grid(True, linestyle='--', alpha=0.7)
     
-    output_file = 'figures/numerical_stability_contours.png'
+    output_file = 'figures/phase_diagram_contours.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     plt.close()
     print(f"Saved {output_file}")

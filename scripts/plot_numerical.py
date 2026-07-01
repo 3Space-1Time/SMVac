@@ -37,10 +37,10 @@ def create_plot(df, filename, title, xlim=None, ylim=None, s=5):
 # Full plot (using broad numerical data)
 print("Plotting full view using broad numerical data...")
 df_full = pd.read_csv('data/numerical_data.csv')
-create_plot(df_full, 'figures/numerical_stability_plot.png', 'Standard Model Vacuum Stability (Numerical, Full View)', s=5)
+create_plot(df_full, 'figures/FL_stability_plot.png', 'Standard Model Vacuum Stability (FL, Full View)', s=5)
 
 # Close-up plot (using dense numerical closeup data)
 print("Plotting close-up view using dense numerical closeup data...")
 df_dense = pd.read_csv('data/numerical_dense_closeup.csv')
-create_plot(df_dense, 'figures/numerical_stability_closeup.png', 'Standard Model Vacuum Stability (Numerical, Close-up)', xlim=(110, 140), ylim=(160, 185), s=2)
+create_plot(df_dense, 'figures/FL_stability_closeup.png', 'Standard Model Vacuum Stability (FL, Close-up)', xlim=(110, 140), ylim=(160, 185), s=2)
 
